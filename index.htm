@@ -1,0 +1,457 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS Insider</title>
+  <style>
+   /* ALLAH IS THE GREATEST */
+   
+   /* Style for file items */
+    #file-list .file-item.selected {
+      background-color: rGb(0, 105, 121); /* Highlight color for the selected file */
+      color: rgb(255, 255, 255);
+    }
+
+    body {
+      font-family: trebuchet ms;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+
+    }
+
+    h1 {
+      background-color: #363636;
+      color: white;
+      padding: 20px;
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #hide-sidebar-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 24px;
+    }
+
+    html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#coder-ai {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
+
+#editor-container {
+  flex: 1;
+  display: inline-flex;
+}
+
+
+    #editor-container {
+      display: flex;
+      flex: 3;
+      background-color: #2c3e50;
+    }
+
+    #file-explorer {
+      width: 200px;
+      background-color: #262626;
+      color: white;
+      padding: 7px;
+      transition: width 0.3s ease;
+    }
+
+    #file-explorer.hidden {
+      width: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    #file-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #file-list li {
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    #file-list li:hover {
+      background-color: #4a6278;
+    }
+
+    #new-file-btn, #rename-file-btn, #delete-file-btn, #download-file-btn, #preview-code-btn, #change-language-btn, #open-file-btn {
+      width: 100%;
+      padding: 5px;
+      margin-top: 10px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      font-family: trebuchet ms;
+      padding: 7px;
+    }
+
+    #new-file-btn, #rename-file-btn, #download-file-btn, #preview-code-btn, #change-language-btn, #open-file-btn {
+      background-color: #3498db;
+      font-size: medium;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      font-size: medium;
+    }
+
+    #new-file-btn:hover, #rename-file-btn:hover, #download-file-btn:hover, #preview-code-btn:hover, #change-language-btn:hover, #open-file-btn:hover, .delete-btn:hover {
+      background-color: #2980b9;
+      font-size: medium;
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+
+    #code-editor {
+      flex: 1;
+      font-size: 14px;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(60, 60, 60, 0.608);
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: transparent;
+      margin: 0px;
+      padding: 20px;
+      border: 1px solid #88888800;
+      width: 100%;
+      max-width: 80%;
+      height: 80%;
+      justify-content: center;
+      align-items: center;
+      margin: auto;
+      margin-top: none;
+    }
+    .modal-content h3 {
+      
+      color: white;
+      border-radius: 5px;
+    }
+
+    .close-btn {
+      color: rgb(231, 76, 60);
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: transparent;
+      border-radius: 200px;
+      padding-left: 10.0px;
+      padding-right: 10px;
+      
+      margin-bottom: 5px;
+      
+
+    }
+
+    .close-btn:hover, .close-btn:focus {
+      color:rgb(135, 24, 24);
+      text-decoration: none;
+      
+    }
+
+    div {
+      margin-bottom: 0px;
+    }
+    .language-option {
+      width: 100%;
+      padding: 7px;
+      margin-top: 10px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: #2980b9;
+    }
+    .language-option:hover {
+      background-color: #236590;
+    }
+    #code-preview {
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      border:1px solid cyan;
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    JS-INSIDER
+    <button id="hide-sidebar-btn" title="Toggle Sidebar">&#9776;</button>
+  </h1>
+
+  <div id="coder-ai">
+    <div id="editor-container">
+      <div id="file-explorer">
+        <h2>Project Files</h2>
+        <ul id="file-list"></ul>
+        <button id="new-file-btn">New File</button>
+        <button id="rename-file-btn">Rename File</button>
+        <button id="delete-file-btn" class="delete-btn">Delete File</button>
+        
+        <button id="open-file-btn">Open File</button> <!-- New open file button -->
+        <button id="download-file-btn">Download File</button>
+        <input type="file" id="file-input" style="display:none;" accept=".js,.html,.css,.json,.xml,.txt,.md" /> <!-- Hidden file input with multiple file type support -->
+        <div name="tools">
+          <h2>Tools</h2>
+          <button id="preview-code-btn">Preview Code</button>
+          <button id="change-language-btn">Change Language</button>
+        </div>
+      </div>
+      <div id="code-editor"></div>
+    </div>
+
+    <!-- Modal Dialog for Preview Code -->
+    <div id="preview-modal" class="modal">
+      <div class="modal-content">
+        <span id="close-preview-modal" class="close-btn">&times;</span>
+        <iframe id="code-preview"></iframe>
+      </div>
+    </div>
+
+    <!-- Modal Dialog for Changing Language -->
+    <div id="language-modal" class="modal">
+      <div class="modal-content">
+        <span id="close-language-modal" class="close-btn">&times;</span>
+        <h3>Change Language</h3>
+        <button class="language-option" data-lang="javascript">JavaScript</button>
+        <button class="language-option" data-lang="html">HTML</button>
+        <button class="language-option" data-lang="css">CSS</button>
+        <button class="language-option" data-lang="json">JSON</button>
+        <button class="language-option" data-lang="xml">XML</button>
+        <button class="language-option" data-lang="markdown">Markdown</button>
+        <button class="language-option" data-lang="text">Plain Text</button>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+
+    <script>
+      const editor = ace.edit("code-editor");
+editor.setTheme("ace/theme/monokai");
+
+let currentFile = "main.js";
+const files = {
+  "main.js": "// Your main code here \n"
+};
+
+// Function to update file explorer
+function updateFileExplorer() {
+  const fileList = document.getElementById("file-list");
+  fileList.innerHTML = "";
+  Object.keys(files).forEach(file => {
+    const li = document.createElement("li");
+    li.textContent = file;
+    li.className = "file-item";
+    li.onclick = () => openFile(file);
+    fileList.appendChild(li);
+  });
+}
+
+// Function to open a file and highlight the selected one
+function openFile(filename) {
+  if (currentFile) {
+    // Save the content before switching files
+    files[currentFile] = editor.getValue();
+  }
+  currentFile = filename;
+  editor.setValue(files[filename] || ""); // Ensure the file has content
+  editor.clearSelection();
+  highlightFile(filename);
+  setEditorMode(filename); // Set the mode based on the file extension
+}
+
+// Function to highlight the selected file
+function highlightFile(filename) {
+  const fileListItems = document.querySelectorAll("#file-list .file-item");
+  fileListItems.forEach(item => {
+    item.classList.remove("selected");
+    if (item.textContent === filename) {
+      item.classList.add("selected");
+    }
+  });
+}
+
+// Function to set the editor mode based on the file extension
+function setEditorMode(filename) {
+  const extension = filename.split('.').pop().toLowerCase();
+  let mode = "text"; // Default to plain text
+
+  switch (extension) {
+    case 'js':
+      mode = "javascript";
+      break;
+    case 'html':
+      mode = "html";
+      break;
+    case 'css':
+      mode = "css";
+      break;
+    case 'json':
+      mode = "json";
+      break;
+    case 'xml':
+      mode = "xml";
+      break;
+    case 'md':
+    case 'markdown':
+      mode = "markdown";
+      break;
+    case 'txt':
+      mode = "text";
+      break;
+  }
+
+  editor.session.setMode(`ace/mode/${mode}`);
+}
+
+// Event listener for new file button
+document.getElementById("new-file-btn").onclick = () => {
+  const filename = prompt("Enter new file name:");
+  if (filename) {
+    files[filename] = "";
+    updateFileExplorer();
+    openFile(filename);
+  }
+};
+
+// Event listener for rename file button
+document.getElementById("rename-file-btn").onclick = () => {
+  const newFilename = prompt("Enter new file name:", currentFile);
+  if (newFilename && newFilename !== currentFile) {
+    files[newFilename] = files[currentFile];
+    delete files[currentFile];
+    updateFileExplorer();
+    openFile(newFilename);
+  }
+};
+
+// Event listener for delete file button
+document.getElementById("delete-file-btn").onclick = () => {
+  if (confirm(`Are you sure you want to delete ${currentFile}?`)) {
+    delete files[currentFile];
+    updateFileExplorer();
+    const remainingFiles = Object.keys(files);
+    if (remainingFiles.length > 0) {
+      openFile(remainingFiles[0]);
+    } else {
+      editor.setValue("");
+      currentFile = null;
+    }
+  }
+};
+
+// Event listener for download file button
+document.getElementById("download-file-btn").onclick = () => {
+  const content = editor.getValue();
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.style.display = "none";
+  a.href = url;
+  a.download = currentFile;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+};
+
+// Event listener for open file button
+document.getElementById("open-file-btn").onclick = () => {
+  document.getElementById("file-input").click(); // Trigger hidden file input
+};
+
+// Handle file selection
+document.getElementById("file-input").addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const content = e.target.result;
+      const filename = file.name;
+      files[filename] = content;
+      updateFileExplorer();
+      openFile(filename);
+    };
+    reader.readAsText(file);
+  }
+});
+
+// Toggle sidebar visibility
+document.getElementById("hide-sidebar-btn").onclick = () => {
+  const fileExplorer = document.getElementById("file-explorer");
+  fileExplorer.classList.toggle("hidden");
+};
+
+// Initialize file explorer
+updateFileExplorer();
+openFile("main.js");
+
+// Modal handling
+document.getElementById("preview-code-btn").onclick = () => {
+  const previewModal = document.getElementById("preview-modal");
+  const previewFrame = document.getElementById("code-preview");
+  previewFrame.srcdoc = editor.getValue();
+  previewModal.style.display = "block";
+};
+
+document.getElementById("close-preview-modal").onclick = () => {
+  document.getElementById("preview-modal").style.display = "none";
+};
+
+document.getElementById("change-language-btn").onclick = () => {
+  document.getElementById("language-modal").style.display = "block";
+};
+
+document.getElementById("close-language-modal").onclick = () => {
+  document.getElementById("language-modal").style.display = "none";
+};
+
+document.querySelectorAll(".language-option").forEach(btn => {
+  btn.onclick = function() {
+    const mode = "ace/mode/" + this.dataset.lang;
+    editor.session.setMode(mode);
+    document.getElementById("language-modal").style.display = "none";
+  };
+});
+
+    </script>
+  </div>
+</body>
+</html>
